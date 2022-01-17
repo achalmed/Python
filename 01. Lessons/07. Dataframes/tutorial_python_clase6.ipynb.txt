@@ -1,0 +1,889 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Python para Economistas: Sexta Clase\n",
+    "\n",
+    "### Módulo Pandas:\n",
+    "\n",
+    "Pandas es una herramienta de manipulación de datos en Python. El paquete pandas crea un objeto Python con filas y columnas llamado dataframe que se parece mucho a una tabla como en softwares estadísticos como Stata y Excel. Los dataframes permiten al usuario almacenar y manipular datos en filas de observaciones y columnas que tambien son llamadas Series.\n",
+    "\n",
+    "<img src=\"pandas_structure.png\" alt=\"Drawing\" style=\"width: 600px;\">\n",
+    "Fuente: https://medium.com/epfl-extension-school/selecting-data-from-a-pandas-dataframe-53917dc39953"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import random\n",
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### 1. Creando series y DataFrames:\n",
+    "\n",
+    "Las Series son colecciones de datos, son iterables y estan organizados de una manera ordenada. Por otro lado, los Dataframes son colecciones de Series que conforman una base de datos como en la imagen anterior. Las Series y los DataFrames tienen métodos que permiten realizar operaciones sobre esos datos como veremos más adelante."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0     0\n",
+       "1     0\n",
+       "2     1\n",
+       "3     1\n",
+       "4     0\n",
+       "     ..\n",
+       "95    1\n",
+       "96    0\n",
+       "97    1\n",
+       "98    1\n",
+       "99    0\n",
+       "Length: 100, dtype: int32"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "s = pd.Series(np.random.randn(100))\n",
+    "s1 = pd.Series(np.random.randint(1, 100, 100))\n",
+    "s2 = pd.Series(np.random.normal(0,1,100))\n",
+    "s3 = pd.Series(np.random.uniform(0,1,100))\n",
+    "s4 = pd.Series(np.random.binomial(1,.3,100))\n",
+    "\n",
+    "print(s4)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "      Random  RandInt    Normal   Uniform  Binomial\n",
+      "0   1.275942       53 -0.232738  0.992288         0\n",
+      "1  -2.207602       77 -1.293788  0.821314         0\n",
+      "2   1.257717       65 -0.797820  0.152443         1\n",
+      "3   0.554530       18 -0.177128  0.631848         1\n",
+      "4  -0.382855       32  0.228550  0.610171         0\n",
+      "..       ...      ...       ...       ...       ...\n",
+      "95 -0.316396       95  0.858515  0.783301         1\n",
+      "96  0.574769       58 -0.857520  0.535394         0\n",
+      "97 -0.034785       69 -1.837041  0.047396         1\n",
+      "98 -1.552421       65  1.231846  0.393306         1\n",
+      "99 -0.906541       88  0.275902  0.294528         0\n",
+      "\n",
+      "[100 rows x 5 columns]\n"
+     ]
+    }
+   ],
+   "source": [
+    "dfDict = {\"Random\":s, \"RandInt\":s1, \"Normal\":s2, \"Uniform\":s3, \"Binomial\":s4}\n",
+    "df = pd.DataFrame(dfDict)\n",
+    "print(df)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "     Random  RandInt    Normal   Uniform  Binomial\n",
+      "0  1.275942       53 -0.232738  0.992288         0\n",
+      "1 -2.207602       77 -1.293788  0.821314         0\n",
+      "2  1.257717       65 -0.797820  0.152443         1\n",
+      "3  0.554530       18 -0.177128  0.631848         1\n",
+      "4 -0.382855       32  0.228550  0.610171         0\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(df.head(5))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "      Random  RandInt    Normal   Uniform  Binomial\n",
+      "95 -0.316396       95  0.858515  0.783301         1\n",
+      "96  0.574769       58 -0.857520  0.535394         0\n",
+      "97 -0.034785       69 -1.837041  0.047396         1\n",
+      "98 -1.552421       65  1.231846  0.393306         1\n",
+      "99 -0.906541       88  0.275902  0.294528         0\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(df.tail(5))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### 2. Indexando Variables:\n",
+    "\n",
+    "En pandas podemos indexar de multiples formas, en algunos casos queremos indexar solo columnas y quedarnos con toda la serie de datos que esta abarca. Para ello debemos colocar entre corchetes la lista de variables que deseamos indexar."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0    0.992288\n",
+       "1    0.821314\n",
+       "2    0.152443\n",
+       "3    0.631848\n",
+       "4    0.610171\n",
+       "Name: Uniform, dtype: float64"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['Uniform'].head() #Indexando una sola columna"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Uniform</th>\n",
+       "      <th>Normal</th>\n",
+       "      <th>Binomial</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0.992288</td>\n",
+       "      <td>-0.232738</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>0.821314</td>\n",
+       "      <td>-1.293788</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>0.152443</td>\n",
+       "      <td>-0.797820</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>0.631848</td>\n",
+       "      <td>-0.177128</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>0.610171</td>\n",
+       "      <td>0.228550</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Uniform    Normal  Binomial\n",
+       "0  0.992288 -0.232738         0\n",
+       "1  0.821314 -1.293788         0\n",
+       "2  0.152443 -0.797820         1\n",
+       "3  0.631848 -0.177128         1\n",
+       "4  0.610171  0.228550         0"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "variableNames = ['Uniform', 'Normal', 'Binomial']\n",
+    "df[variableNames].head() # Indexando mas columnas"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Uniform</th>\n",
+       "      <th>Normal</th>\n",
+       "      <th>Binomial</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0.992288</td>\n",
+       "      <td>-0.232738</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>0.821314</td>\n",
+       "      <td>-1.293788</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>0.152443</td>\n",
+       "      <td>-0.797820</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>0.631848</td>\n",
+       "      <td>-0.177128</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>0.610171</td>\n",
+       "      <td>0.228550</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Uniform    Normal  Binomial\n",
+       "0  0.992288 -0.232738         0\n",
+       "1  0.821314 -1.293788         0\n",
+       "2  0.152443 -0.797820         1\n",
+       "3  0.631848 -0.177128         1\n",
+       "4  0.610171  0.228550         0"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "variableNames=['Uniform', 'Normal', 'Binomial']\n",
+    "df[variableNames].head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### 3. Indexando filas:\n",
+    "\n",
+    "Así como indexamos columnas, tambien es posible cortar o indexar filas. Para ello utilizamos los comandos 'loc' o 'iloc'. El comando 'loc' permite indexar filas utilizando el indice de la fila (o un boolean array que seleccione las filas que queremos) en el dataframe y columnas usando los nombres de las columnas que queremos incluir en el corte. El comando 'iloc' por su parte permite indexar o cortar la base de datos como si estuvieramos cortando una matriz en numpy utilizando entradas ordinales empezando desde la entrada 0 en adelante."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "     Random  RandInt    Normal   Uniform  Binomial\n",
+      "1 -2.207602       77 -1.293788  0.821314         0\n",
+      "2  1.257717       65 -0.797820  0.152443         1\n",
+      "3  0.554530       18 -0.177128  0.631848         1\n",
+      "4 -0.382855       32  0.228550  0.610171         0\n",
+      "5  0.980364       79 -0.392164  0.996459         0\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Desde la 2da fila hasta la 6ta\n",
+    "print(df.loc[1:5, :])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "     Normal  Binomial\n",
+      "1 -1.293788         0\n",
+      "2 -0.797820         1\n",
+      "3 -0.177128         1\n",
+      "4  0.228550         0\n",
+      "5 -0.392164         0\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Desde la 2da fila hasta la 6ta incluyendo solo las variables Normal y Binomial\n",
+    "print(df.loc[1:5, ['Normal', 'Binomial']])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "      Random  RandInt    Normal   Uniform  Binomial\n",
+      "0   1.275942       53 -0.232738  0.992288         0\n",
+      "1  -2.207602       77 -1.293788  0.821314         0\n",
+      "2   1.257717       65 -0.797820  0.152443         1\n",
+      "4  -0.382855       32  0.228550  0.610171         0\n",
+      "5   0.980364       79 -0.392164  0.996459         0\n",
+      "..       ...      ...       ...       ...       ...\n",
+      "95 -0.316396       95  0.858515  0.783301         1\n",
+      "96  0.574769       58 -0.857520  0.535394         0\n",
+      "97 -0.034785       69 -1.837041  0.047396         1\n",
+      "98 -1.552421       65  1.231846  0.393306         1\n",
+      "99 -0.906541       88  0.275902  0.294528         0\n",
+      "\n",
+      "[79 rows x 5 columns]\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Si queremos solo las filas que tienen valores para RandInt mayor a 30\n",
+    "#indexInt  = df['RandInt'] > 30\n",
+    "#print(pd.DataFrame([indexInt, df['RandInt']]))\n",
+    "df3 = df.loc[df['RandInt'] > 30, :]\n",
+    "print(df3)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "      Random  RandInt    Normal   Uniform  Binomial\n",
+      "2   1.257717       65 -0.797820  0.152443         1\n",
+      "6   0.476562       52  1.260049  0.935659         1\n",
+      "7   0.902655       41  0.088066  0.079032         1\n",
+      "11  1.080646       83  2.406169  0.633360         1\n",
+      "14 -1.104845       46 -0.050597  0.540478         1\n",
+      "16 -0.778216       67 -1.555247  0.128352         1\n",
+      "19  1.108137       75 -1.512965  0.642958         1\n",
+      "23 -1.441913       33  0.429093  0.351430         1\n",
+      "35 -0.039039       57  0.426910  0.787875         1\n",
+      "36 -0.011919       53 -0.438533  0.813086         1\n",
+      "42 -0.708585       63 -1.604228  0.372966         1\n",
+      "48 -0.191116       45  1.249497  0.332570         1\n",
+      "57  1.168778       60  1.286332  0.655762         1\n",
+      "59  0.354810       78 -1.936094  0.003238         1\n",
+      "78 -1.317057       44  0.218074  0.926615         1\n",
+      "88  0.546124       31  0.283197  0.172861         1\n",
+      "95 -0.316396       95  0.858515  0.783301         1\n",
+      "97 -0.034785       69 -1.837041  0.047396         1\n",
+      "98 -1.552421       65  1.231846  0.393306         1\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Si queremos agregar mas condicionales\n",
+    "df4 = df.loc[(df['RandInt'] > 30) & (df['Binomial'] == 1), :]\n",
+    "print(df4)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "      Normal   Uniform\n",
+      "2  -0.797820  0.152443\n",
+      "6   1.260049  0.935659\n",
+      "7   0.088066  0.079032\n",
+      "11  2.406169  0.633360\n",
+      "14 -0.050597  0.540478\n",
+      "16 -1.555247  0.128352\n",
+      "19 -1.512965  0.642958\n",
+      "23  0.429093  0.351430\n",
+      "35  0.426910  0.787875\n",
+      "36 -0.438533  0.813086\n",
+      "42 -1.604228  0.372966\n",
+      "48  1.249497  0.332570\n",
+      "57  1.286332  0.655762\n",
+      "59 -1.936094  0.003238\n",
+      "78  0.218074  0.926615\n",
+      "88  0.283197  0.172861\n",
+      "95  0.858515  0.783301\n",
+      "97 -1.837041  0.047396\n",
+      "98  1.231846  0.393306\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Si queremos las condiciones anteriores pero solo necesitamos una variable especifica:\n",
+    "condicionalIndexRow = (df['RandInt'] > 30) & (df['Binomial'] == 1)\n",
+    "variableList = ['Normal', 'Uniform']\n",
+    "df5 = df.loc[condicionalIndexRow, variableList]\n",
+    "\n",
+    "print(df5)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### 4. Renombrando variables\n",
+    "\n",
+    "Podemos renombrar las variables en una base de datos de dos formas. La primera es utilizando el método rename, e introduciendo como insumo un diccionario con los nombres que queremos reemplazar y sus reemplazos. La segunda es usar el metodo columns y reemplazar el resultado con una lista con los nuevos nombres de variable."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   Random Variable  Random Integer    Normal   Uniform  Binomial\n",
+      "0         1.275942              53 -0.232738  0.992288         0\n",
+      "1        -2.207602              77 -1.293788  0.821314         0\n",
+      "2         1.257717              65 -0.797820  0.152443         1\n",
+      "3         0.554530              18 -0.177128  0.631848         1\n",
+      "4        -0.382855              32  0.228550  0.610171         0\n"
+     ]
+    }
+   ],
+   "source": [
+    "df = df.rename(columns={'Random': 'Random Variable', 'RandInt': 'Random Integer'})\n",
+    "print(df.head())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "   Random Variable  Random Integer    Normal   Uniform  Binomial\n",
+      "0         1.275942              53 -0.232738  0.992288         0\n",
+      "1        -2.207602              77 -1.293788  0.821314         0\n",
+      "2         1.257717              65 -0.797820  0.152443         1\n",
+      "3         0.554530              18 -0.177128  0.631848         1\n",
+      "4        -0.382855              32  0.228550  0.610171         0\n"
+     ]
+    }
+   ],
+   "source": [
+    "#print(df.columns)\n",
+    "df.columns = ['Random Variable', 'Random Integer', 'Normal', 'Uniform', 'Binomial']\n",
+    "print(df.head())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### 5. Emparejando (Merging) bases de datos: \n",
+    "\n",
+    "El emparejamiento de datos es el proceso de combinar dos o más conjuntos de datos en una sola base de datos. A menudo, este proceso es necesario cuando tiene datos sin procesar almacenados en múltiples archivos, que el usuario desea analizar de manera simultanea. Por lo general hacemos merge de dos bases de datos en base a un indicador clave (key variable) que tengan en comun ambas bases de datos. \n",
+    "\n",
+    "<img src=\"merge_structure.png\" alt=\"Drawing\" style=\"width: 500px;\">\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "    Random Variable  Random Integer    Normal   Uniform  Binomial\n",
+      "0          1.275942              53 -0.232738  0.992288         0\n",
+      "1         -2.207602              77 -1.293788  0.821314         0\n",
+      "2          1.257717              65 -0.797820  0.152443         1\n",
+      "3          0.554530              18 -0.177128  0.631848         1\n",
+      "4         -0.382855              32  0.228550  0.610171         0\n",
+      "..              ...             ...       ...       ...       ...\n",
+      "95        -0.316396              95  0.858515  0.783301         1\n",
+      "96         0.574769              58 -0.857520  0.535394         0\n",
+      "97        -0.034785              69 -1.837041  0.047396         1\n",
+      "98        -1.552421              65  1.231846  0.393306         1\n",
+      "99        -0.906541              88  0.275902  0.294528         0\n",
+      "\n",
+      "[100 rows x 5 columns]\n"
+     ]
+    }
+   ],
+   "source": [
+    "dfNew = pd.DataFrame({'Integers': range(100), 'Name': ['Worker Number ' + str(ii) for ii in range(100)]})\n",
+    "print(df)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "    Random Variable  Random Integer    Normal   Uniform  Binomial  Integers  \\\n",
+      "0          1.275942              53 -0.232738  0.992288         0        53   \n",
+      "1          1.608246              53 -0.234639  0.417768         0        53   \n",
+      "2         -0.011919              53 -0.438533  0.813086         1        53   \n",
+      "3         -2.207602              77 -1.293788  0.821314         0        77   \n",
+      "4          1.257717              65 -0.797820  0.152443         1        65   \n",
+      "..              ...             ...       ...       ...       ...       ...   \n",
+      "95         0.061713              49  0.866739  0.996784         0        49   \n",
+      "96        -0.824031              56 -0.893802  0.502938         0        56   \n",
+      "97        -1.908063              98 -1.012320  0.146110         0        98   \n",
+      "98         0.702065              51 -1.121909  0.822212         0        51   \n",
+      "99        -0.034785              69 -1.837041  0.047396         1        69   \n",
+      "\n",
+      "                Name _merge  \n",
+      "0   Worker Number 53   both  \n",
+      "1   Worker Number 53   both  \n",
+      "2   Worker Number 53   both  \n",
+      "3   Worker Number 77   both  \n",
+      "4   Worker Number 65   both  \n",
+      "..               ...    ...  \n",
+      "95  Worker Number 49   both  \n",
+      "96  Worker Number 56   both  \n",
+      "97  Worker Number 98   both  \n",
+      "98  Worker Number 51   both  \n",
+      "99  Worker Number 69   both  \n",
+      "\n",
+      "[100 rows x 8 columns]\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "both          100\n",
+       "right_only      0\n",
+       "left_only       0\n",
+       "Name: _merge, dtype: int64"
+      ]
+     },
+     "execution_count": 33,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "dfMerged1 = pd.merge(df,dfNew, left_on='Random Integer', right_on = 'Integers', how= 'inner', indicator=True)\n",
+    "print(dfMerged1)\n",
+    "dfMerged1._merge.value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "both          100\n",
+       "right_only     42\n",
+       "left_only       0\n",
+       "Name: _merge, dtype: int64"
+      ]
+     },
+     "execution_count": 34,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "dfMerged2 = pd.merge(df,dfNew, left_on='Random Integer', right_on = 'Integers', how= 'right', indicator=True)\n",
+    "dfMerged2._merge.value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "both          100\n",
+       "right_only      0\n",
+       "left_only       0\n",
+       "Name: _merge, dtype: int64"
+      ]
+     },
+     "execution_count": 36,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "dfMerged3 = pd.merge(df,dfNew, left_on='Random Integer', right_on = 'Integers', how= 'left', indicator=True)\n",
+    "dfMerged3._merge.value_counts()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### 6. Otros Métodos:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Eliminar una variable:\n",
+    "dfMerged3.drop(columns=['_merge'], inplace = True)\n",
+    "\n",
+    "dfMergedCopy = dfMerged3.copy()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "    Random Variable  Random Integer    Normal   Uniform  Binomial  Integers  \\\n",
+      "0          1.275942              53 -0.232738  0.992288         0        53   \n",
+      "1         -2.207602              77 -1.293788  0.821314         0        77   \n",
+      "2          1.257717              65 -0.797820  0.152443         1        65   \n",
+      "3          0.554530              18 -0.177128  0.631848         1        18   \n",
+      "4         -0.382855              32  0.228550  0.610171         0        32   \n",
+      "..              ...             ...       ...       ...       ...       ...   \n",
+      "95        -0.316396              95  0.858515  0.783301         1        95   \n",
+      "96         0.574769              58 -0.857520  0.535394         0        58   \n",
+      "97        -0.034785              69 -1.837041  0.047396         1        69   \n",
+      "98        -1.552421              65  1.231846  0.393306         1        65   \n",
+      "99        -0.906541              88  0.275902  0.294528         0        88   \n",
+      "\n",
+      "                Name  \n",
+      "0   Worker Number 53  \n",
+      "1   Worker Number 77  \n",
+      "2   Worker Number 65  \n",
+      "3   Worker Number 18  \n",
+      "4   Worker Number 32  \n",
+      "..               ...  \n",
+      "95  Worker Number 95  \n",
+      "96  Worker Number 58  \n",
+      "97  Worker Number 69  \n",
+      "98  Worker Number 65  \n",
+      "99  Worker Number 88  \n",
+      "\n",
+      "[200 rows x 7 columns]\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Sobreponer dataframes:\n",
+    "dfAppend = dfMerged3.append(dfMergedCopy)\n",
+    "print(dfAppend)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Index(['Random Variable', 'Random Integer', 'Normal', 'Uniform', 'Binomial',\n",
+      "       'Integers', 'Name'],\n",
+      "      dtype='object')\n",
+      "(Binomial == 1) & (Normal <= 1) & (Uniform >= 0.5)\n",
+      "    Random Variable  Random Integer    Normal   Uniform  Binomial  Integers  \\\n",
+      "3          0.554530              18 -0.177128  0.631848         1        18   \n",
+      "14        -1.104845              46 -0.050597  0.540478         1        46   \n",
+      "19         1.108137              75 -1.512965  0.642958         1        75   \n",
+      "35        -0.039039              57  0.426910  0.787875         1        57   \n",
+      "36        -0.011919              53 -0.438533  0.813086         1        53   \n",
+      "40        -0.821628              16  0.354707  0.710456         1        16   \n",
+      "54         0.549837              29 -0.220009  0.521880         1        29   \n",
+      "55        -0.344773               3  0.767323  0.884198         1         3   \n",
+      "76        -0.270785              15  0.074125  0.671066         1        15   \n",
+      "78        -1.317057              44  0.218074  0.926615         1        44   \n",
+      "95        -0.316396              95  0.858515  0.783301         1        95   \n",
+      "3          0.554530              18 -0.177128  0.631848         1        18   \n",
+      "14        -1.104845              46 -0.050597  0.540478         1        46   \n",
+      "19         1.108137              75 -1.512965  0.642958         1        75   \n",
+      "35        -0.039039              57  0.426910  0.787875         1        57   \n",
+      "36        -0.011919              53 -0.438533  0.813086         1        53   \n",
+      "40        -0.821628              16  0.354707  0.710456         1        16   \n",
+      "54         0.549837              29 -0.220009  0.521880         1        29   \n",
+      "55        -0.344773               3  0.767323  0.884198         1         3   \n",
+      "76        -0.270785              15  0.074125  0.671066         1        15   \n",
+      "78        -1.317057              44  0.218074  0.926615         1        44   \n",
+      "95        -0.316396              95  0.858515  0.783301         1        95   \n",
+      "\n",
+      "                Name  \n",
+      "3   Worker Number 18  \n",
+      "14  Worker Number 46  \n",
+      "19  Worker Number 75  \n",
+      "35  Worker Number 57  \n",
+      "36  Worker Number 53  \n",
+      "40  Worker Number 16  \n",
+      "54  Worker Number 29  \n",
+      "55   Worker Number 3  \n",
+      "76  Worker Number 15  \n",
+      "78  Worker Number 44  \n",
+      "95  Worker Number 95  \n",
+      "3   Worker Number 18  \n",
+      "14  Worker Number 46  \n",
+      "19  Worker Number 75  \n",
+      "35  Worker Number 57  \n",
+      "36  Worker Number 53  \n",
+      "40  Worker Number 16  \n",
+      "54  Worker Number 29  \n",
+      "55   Worker Number 3  \n",
+      "76  Worker Number 15  \n",
+      "78  Worker Number 44  \n",
+      "95  Worker Number 95  \n"
+     ]
+    }
+   ],
+   "source": [
+    "# Query un Dataframe:\n",
+    "\n",
+    "print(dfAppend.columns)\n",
+    "\n",
+    "q = ('(Binomial == %s) ' '& (Normal <= %s) ' '& (Uniform >= %s)') % (1,1,.5)\n",
+    "print(q)\n",
+    "reportCases = dfAppend.query(q)\n",
+    "print(reportCases)\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
